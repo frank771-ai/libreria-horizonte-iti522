@@ -1,0 +1,42 @@
+version: "2.4"
+
+services:
+  database:
+    image: postgres:16-alpine
+    container_name: horizonte-database
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-horizonte}
+      POSTGRES_USER: ${DB_USER:-horizonte}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD must be set}
+    volumes:
+      - horizonte_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-horizonte} -d ${DB_NAME:-horizonte}"]
+      interval: 5s
+      timeout: 3s
+      retries: 15
+
+  application:
+    build: ./source
+    container_name: horizonte-application
+    restart: unless-stopped
+    environment:
+      DB_HOST: database
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-horizonte}
+      DB_USER: ${DB_USER:-horizonte}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD must be set}
+      LOG_FILE: /app/logs/application.log
+    volumes:
+      - ./logs:/app/logs
+    ports:
+      - "8080:8000"
+    depends_on:
+      database:
+        condition: service_healthy
+
+volumes:
+  horizonte_data:
+    name: horizonte_inventory_data
