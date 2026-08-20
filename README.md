@@ -102,3 +102,9 @@ logs/application.log
 
 Incluye fecha y hora, inicio y detención, solicitudes recibidas, creación,
 actualización y eliminación de productos, además de errores controlados.
+
+## Documentación
+
+- [Arquitectura](docs/architecture.md)
+- [Resultados de pruebas](docs/TESTING.md)
+- [Índice de evidencias](evidence/VALIDACION.md)

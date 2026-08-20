@@ -17,7 +17,10 @@ touch logs/application.log
 chmod 600 .env logs/application.log
 
 echo "Iniciando PostgreSQL y Horizonte Inventory..."
-sudo -S docker-compose up -d --build
+# Compose 1.29 no puede recrear de forma fiable contenedores creados por
+# Docker 29. Se retiran solo los contenedores y la red; el volumen nombrado de
+# PostgreSQL se conserva, por lo que los datos permanecen intactos.
+sudo -S sh -c 'docker-compose down --remove-orphans && docker-compose up -d --build'
 
 echo "Esperando el endpoint /health..."
 for attempt in {1..40}; do
